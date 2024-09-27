@@ -1,16 +1,36 @@
-# Slicer Selector
+#  🍰 Slicer Selector
+
 
 Choose which 3d Printer Slicer software to use on-the-fly
 
 ![](/img/example1.png)
 
 
-## Installation
+## 💿 Installation
 
-1. Download SlicerSelector.zip
-2. Unzip to /Applications folder
+1. Download git repo
+2. Copy `SlicerSelector.app` to `/Applications` directory
 
 
 Optionally right click a .stl and .3mf file and chose 'SlicerSelector' as the default application
 
 ![](./img/default_app.png)
+
+
+## 💻 Development
+
+1. Modify [SlicerSelector.app/Contents/Resources/Scripts/main.scpt](./SlicerSelector.app/Contents/Resources/Scripts/main.scpt)
+
+
+## 🥅 Goals
+
+- Rewrite this as a native OSX Application and include in appstore or homebrew
+- Windows support
+
+## 🐛 Known Bugs
+
+- Prusa Slicer will not be detected if it is installed to `/Applications/Original\ Prusa\ Drivers/PrusaSlicer.app`. Move the slicer to `/Applications`
+
+## Notes
+
+Inspiration for this application comes from the popular browser switcher [Velja](https://sindresorhus.com/velja)
