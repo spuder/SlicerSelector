@@ -17,6 +17,16 @@ Optionally right click a .stl and .3mf file and chose 'SlicerSelector' as the de
 ![](./img/default_app.png)
 
 
+## How it works
+
+SlicerSelector looks at `/Applications` directory for one of the following slicers. 
+Is your prefered slicer not shown? Pull requests welcome. 
+
+```
+	set slicerList to {"BambuStudio", "PrusaSlicer", "SuperSlicer", "OrcaSlicer", "Cura"}
+```
+
+
 ## 💻 Development
 
 1. Modify [SlicerSelector.app/Contents/Resources/Scripts/main.scpt](./SlicerSelector.app/Contents/Resources/Scripts/main.scpt)
