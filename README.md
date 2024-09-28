@@ -3,7 +3,7 @@
 
 Choose which 3d Printer Slicer software to use on-the-fly
 
-![](/img/example1.png)
+![](/img/example2.png)
 
 
 ## 💿 Installation
@@ -23,7 +23,8 @@ SlicerSelector looks at `/Applications` directory for installed Slicers. It pres
 
 ## 💻 Development
 
-1. Modify [SlicerSelector.app/Contents/Resources/Scripts/main.scpt](./SlicerSelector.app/Contents/Resources/Scripts/main.scpt)
+1. Edit SlicerSelector.scpt using Script Editor application on OSX
+2. Run `make all && make install` 
 
 
 ## 🥅 Goals
