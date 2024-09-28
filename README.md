@@ -8,8 +8,7 @@ Choose which 3d Printer Slicer software to use on-the-fly
 
 ## 💿 Installation
 
-1. Download git repo
-2. Copy `SlicerSelector.app` to `/Applications` directory
+`make && make install`
 
 
 Optionally right click a .stl and .3mf file and chose 'SlicerSelector' as the default application
@@ -19,12 +18,7 @@ Optionally right click a .stl and .3mf file and chose 'SlicerSelector' as the de
 
 ## How it works
 
-SlicerSelector looks at `/Applications` directory for one of the following slicers. 
-Is your prefered slicer not shown? Pull requests welcome. 
-
-```
-	set slicerList to {"BambuStudio", "PrusaSlicer", "SuperSlicer", "OrcaSlicer", "Cura"}
-```
+SlicerSelector looks at `/Applications` directory for installed Slicers. It presents them as a list and allows passing in options
 
 
 ## 💻 Development
@@ -36,6 +30,7 @@ Is your prefered slicer not shown? Pull requests welcome.
 
 - Rewrite this as a native OSX Application and include in appstore or homebrew
 - Windows support
+- Support multiple instances of Slicers and allow choosing which process to import into
 
 ## 🐛 Known Bugs
 
