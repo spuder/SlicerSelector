@@ -40,7 +40,8 @@ jobs:
         version=$(echo ${{ github.ref }} | sed 's/^refs\/tags\/v//')
         cd homebrew-SlicerSelector
         sed -i '' 's/version ".*"/version "'$version'"/' Casks/slicer-selector.rb
-        sed -i '' 's/sha256 ".*"/sha256 "${{ steps.shasum.outputs.sha }}"/' Casks/slicer-selector.rb        git config user.name github-actions
+        sed -i '' 's/sha256 ".*"/sha256 "${{ steps.shasum.outputs.sha }}"/' Casks/slicer-selector.rb       
+        git config user.name github-actions
         git config user.email github-actions@github.com
         git add Casks/slicer-selector.rb
         git commit -m "Update cask to version $version"
