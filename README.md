@@ -1,6 +1,6 @@
 #  🍰 Slicer Selector
 
-Slicer Selector becomes your default app for opening `.stl` and `.3mf` files. 
+Slicer Selector becomes your default app for opening `.stl`, `.3mf` files. 
 Upon opening a file, it will auto discover all your installed slicers, and prompt you which one to use. 
 
 
@@ -24,9 +24,8 @@ brew tap spuder/SlicerSelector
 brew install slicer-selector
 ```
 
-Once complete there will be a new app at `/Applications/SlicerSelector.app`
+Once complete there will be a new app at `/Applications/SlicerSelector.app`. It should be the default app for `.gcode`,`.stl`, `.3mf`, `.amf`, `.obj` files. 
 
-SlicerSelector will be the default app to open `.stl` and `.3mf` files
 
 
 ## ⚙️ How it works
@@ -41,21 +40,13 @@ Maybe you have multiple types of printers (resin / fdm / sls) and want to easily
 ## 💻 Development
 
 
-1. Edit `SlicerSelector.scpt` using Script Editor application on OSX
+The [applescript extension](https://marketplace.visualstudio.com/items?itemName=idleberg.applescript) is highly recomended for VSCode users. 
+
+1. Edit `SlicerSelector.applescript` 
 2. Run `make all && make install` 
 
-Currently supported slicers are: 
-
-```
-set slicerList to {"BambuStudio", "PrusaSlicer", "SuperSlicer", "OrcaSlicer", "UltiMaker Cura", "LycheeSlicer", "Slic3r", "AnkerMake Studio", "IdeaMaker", "MatterControl", "CraftWare", "Simplify3D", "ChiTuBox", "Proton Workshop", "OpenSCAD"}
-```
 
 Pull Requests welcome. 
-
-
-## 🐛 Known Bugs
-
-- Prusa Slicer will not be detected if it is installed to `/Applications/Original\ Prusa\ Drivers/PrusaSlicer.app`. Workaround is to move the PrusaSlicer to `/Applications`
 
 ## Notes
 
