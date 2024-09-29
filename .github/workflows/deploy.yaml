@@ -1,9 +1,6 @@
 name: Build and Release
 
-on:
-  push:
-    tags:
-      - 'v*'
+on: push
 
 jobs:
   build-and-release:
@@ -21,44 +18,30 @@ jobs:
 
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./SlicerSelector.app.zip
-        asset_name: SlicerSelector.app.zip
-        asset_content_type: application/zip
+        files: ./SlicerSelector.app.zip
 
     - name: Get SHA256
       id: shasum
       run: echo "::set-output name=sha::$(shasum -a 256 SlicerSelector.app.zip | awk '{print $1}')"
 
-    - name: Checkout homebrew-slicer-selector
-      uses: actions/checkout@v3
-      with:
-        repository: spuder/homebrew-slicer-selector
-        path: homebrew-slicer-selector
-        token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+    # - name: Checkout homebrew-slicer-selector
+    #   uses: actions/checkout@v3
+    #   with:
+    #     repository: spuder/homebrew-SlicerSelector
+    #     path: homebrew-SlicerSelector
+    #     token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
 
-    - name: Update Cask
-      run: |
-        version=$(echo ${{ github.ref }} | sed 's/^refs\/tags\/v//')
-        cd homebrew-slicer-selector
-        sed -i '' 's/version ".*"/version "'$version'"/' Casks/slicer-selector.rb
-        sed -i '' 's/sha256 ".*"/sha256 "${{ steps.shasum.outputs.sha }}"/' Casks/slicer-selector.rb
-        git config user.name github-actions
-        git config user.email github-actions@github.com
-        git add Casks/slicer-selector.rb
-        git commit -m "Update cask to version $version"
-        git push
+    # - name: Update Cask
+    #   run: |
+    #     version=$(echo ${{ github.ref }} | sed 's/^refs\/tags\/v//')
+    #     cd homebrew-slicer-selector
+    #     sed -i '' 's/version ".*"/version "'$version'"/' Casks/slicer-selector.rb
+    #     sed -i '' 's/sha256 ".*"/sha256 "${{ steps.shasum.outputs.sha }}"/' Casks/slicer-selector.rb
+    #     git config user.name github-actions
+    #     git config user.email github-actions@github.com
+    #     git add Casks/slicer-selector.rb
+    #     git commit -m "Update cask to version $version"
+    #     git push
