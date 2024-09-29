@@ -5,6 +5,8 @@ Choose which 3d Printer Slicer software to use on-the-fly
 
 ![](/img/example2.png)
 
+![](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGtjcXJ2cTR2Z3pxbTA5dHhkdnQzOTcyaGJldW0wd2VsMW1qd2gycyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/t45i9kYxAKKfIhQS4r/giphy.gif)
+
 
 ## 💿 Installation
 
@@ -13,16 +15,16 @@ brew tap spuder/SlicerSelector
 brew install slicer-selector
 ```
 
-Once complete there will be a new app in `/Applications/SlicerSelector.app`
+Once complete there will be a new app at `/Applications/SlicerSelector.app`
 
 SlicerSelector will be the default app to open `.stl` and `.3mf` files
 
 
-## How it works
+## ⚙️ How it works
 
 SlicerSelector looks for popular slicers in the  `/Applications`. When a `.3mf` or `.stl` file is opened it redirects to the chosen app.
 
-## Why would you want this? 
+## ❔ Why would you want this? 
 
 Maybe you have multiple brands of printers that need their own slicers. 
 Maybe you have multiple types of printers (resin / fdm / sls) and want to easily switch between them. 
