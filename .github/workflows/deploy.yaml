@@ -25,23 +25,23 @@ jobs:
 
     - name: Get SHA256
       id: shasum
-      run: echo "::set-output name=sha::$(shasum -a 256 SlicerSelector.app.zip | awk '{print $1}')"
+      run: echo "sha=$(shasum -a 256 SlicerSelector.app.zip | awk '{print $1}')" >> $GITHUB_OUTPUT
 
-    # - name: Checkout homebrew-slicer-selector
-    #   uses: actions/checkout@v3
-    #   with:
-    #     repository: spuder/homebrew-SlicerSelector
-    #     path: homebrew-SlicerSelector
-    #     token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+    - name: Checkout homebrew-SlicerSelector
+      uses: actions/checkout@v3
+      with:
+        repository: spuder/homebrew-SlicerSelector
+        path: homebrew-SlicerSelector
+        token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
 
-    # - name: Update Cask
-    #   run: |
-    #     version=$(echo ${{ github.ref }} | sed 's/^refs\/tags\/v//')
-    #     cd homebrew-slicer-selector
-    #     sed -i '' 's/version ".*"/version "'$version'"/' Casks/slicer-selector.rb
-    #     sed -i '' 's/sha256 ".*"/sha256 "${{ steps.shasum.outputs.sha }}"/' Casks/slicer-selector.rb
-    #     git config user.name github-actions
-    #     git config user.email github-actions@github.com
-    #     git add Casks/slicer-selector.rb
-    #     git commit -m "Update cask to version $version"
-    #     git push
+    - name: Update Cask
+      run: |
+        version=$(echo ${{ github.ref }} | sed 's/^refs\/tags\/v//')
+        cd homebrew-SlicerSelector
+        sed -i '' 's/version ".*"/version "'$version'"/' Casks/slicer-selector.rb
+        sed -i '' 's/sha256 ".*"/sha256 "${{ steps.shasum.outputs.sha }}"/' Casks/slicer-selector.rb        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add Casks/slicer-selector.rb
+        git commit -m "Update cask to version $version"
+        git push
+      if: startsWith(github.ref, 'refs/tags/')
