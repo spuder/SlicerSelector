@@ -5,7 +5,8 @@ SCRIPT_NAME = SlicerSelector
 SCRIPT_SRC = $(SCRIPT_NAME).scpt
 APP_NAME = $(SCRIPT_NAME).app
 ICON_FILE = ./img/SlicerSelector.icns
-INSTALL_DIR = /Applications
+PREFIX ?= /Applications
+INSTALL_DIR = $(PREFIX)
 INFO_PLIST = $(APP_NAME)/Contents/Info.plist
 
 # Default target
@@ -52,6 +53,7 @@ resign:
 # Install target
 install: all
 	@echo "Installing $(APP_NAME) to $(INSTALL_DIR)"
+	@mkdir -p "$(INSTALL_DIR)"
 	@if [ -d "$(INSTALL_DIR)/$(APP_NAME)" ]; then \
 		rm -rf "$(INSTALL_DIR)/$(APP_NAME)"; \
 	fi
