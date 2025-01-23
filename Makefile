@@ -18,15 +18,25 @@ build:
 		echo "Error: Script file $(SCRIPT_SRC) not found"; \
 		exit 1; \
 	fi
-	echo "Building $(APP_NAME) with custom icon $(ICON_FILE)"; \
-	osacompile -o $(APP_NAME) $(SCRIPT_SRC); \
-	cp -f $(ICON_FILE) $(APP_NAME)/Contents/Resources/SlicerSelector.icns; \
-	mkdir -p $(APP_NAME)/Contents/Resources/images; \
-	cp -f $(ICON_FILE) $(APP_NAME)/Contents/Resources/images/SlicerSelector.icns; \
+	@if [ ! -f "$(ICON_FILE)" ]; then \
+		echo "Error: Icon file $(ICON_FILE) not found"; \
+		exit 1; \
+	fi
+	@echo "Building $(APP_NAME) with custom icon $(ICON_FILE)"
+	@osacompile -o $(APP_NAME) $(SCRIPT_SRC)
+	@mkdir -p $(APP_NAME)/Contents/Resources
+	@cp -f $(ICON_FILE) $(APP_NAME)/Contents/Resources/SlicerSelector.icns
+	@if [ -f "$(APP_NAME)/Contents/MacOS/droplet" ]; then \
+		mv "$(APP_NAME)/Contents/MacOS/droplet" "$(APP_NAME)/Contents/MacOS/$(SCRIPT_NAME)"; \
+	else \
+		echo "Executable already named correctly."; \
+	fi
 
 # Modify Info.plist target
 modify_plist:
 	@echo "Modifying Info.plist to support file extensions"
+	@/usr/libexec/PlistBuddy -c "Set :CFBundleName SlicerSelector" $(INFO_PLIST)
+	@/usr/libexec/PlistBuddy -c "Set :CFBundleExecutable SlicerSelector" $(INFO_PLIST)
 	@/usr/libexec/PlistBuddy -c "Delete :CFBundleDocumentTypes" $(INFO_PLIST) 2>/dev/null || true
 	@/usr/libexec/PlistBuddy -c "Set :CFBundleIconFile SlicerSelector.icns" $(INFO_PLIST)
 	@/usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes array" $(INFO_PLIST)
