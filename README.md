@@ -37,6 +37,10 @@ SlicerSelector looks for popular slicers in the  `/Applications`. When a `.3mf` 
 Maybe you have multiple brands of printers that need their own slicers. 
 Maybe you have multiple types of printers (resin / fdm / sls) and want to easily switch between them. 
 
+## ? Why not just right click the file and choose application?
+
+That is a good solution, however thats a few extra clicks and it doesn't work when exporting directly from Fusion 360
+
 ## 💻 Development
 
 
