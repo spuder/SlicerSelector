@@ -14,22 +14,57 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Set up environment
+      run: |
+        echo "AC_USERNAME=${{ secrets.AC_USERNAME }}" >> $GITHUB_ENV
+        echo "AC_PASSWORD=${{ secrets.AC_PASSWORD }}" >> $GITHUB_ENV
+        echo "TEAM_ID=${{ secrets.TEAM_ID }}" >> $GITHUB_ENV
+
+    - name: Import signing certificate
+      run: |
+        echo "${{ secrets.SIGNING_CERTIFICATE }}" | base64 --decode > developer_id.p12
+        security create-keychain -p temp build.keychain
+        security default-keychain -s build.keychain
+        security unlock-keychain -p temp build.keychain
+        # Import without a password
+        security import developer_id.p12 -k build.keychain \
+          -P "" \
+          -T /usr/bin/codesign
+        security set-key-partition-list -S apple-tool:,apple: -s -k temp build.keychain
+
     - name: Build app
-      run: make build && make modify_plist
+      run: |
+        make build
+        make modify_plist
+
+    - name: Sign app
+      run: |
+        make resign
+
+    - name: Notarize app
+      run: |
+        make notarize
+
+    - name: Verify notarization
+      run: |
+        xcrun stapler validate SlicerSelector.app
+        spctl -a -vv SlicerSelector.app
 
     - name: Create ZIP archive
-      run: zip -r SlicerSelector.app.zip SlicerSelector.app
+      run: |
+        ditto -c -k --keepParent SlicerSelector.app SlicerSelector.app.zip
 
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags/v')  # Only create release for v-prefixed tags
+      if: startsWith(github.ref, 'refs/tags/v')
       with:
         files: ./SlicerSelector.app.zip
 
     - name: Get SHA256
       id: shasum
-      run: echo "sha=$(shasum -a 256 SlicerSelector.app.zip | awk '{print $1}')" >> $GITHUB_OUTPUT
+      run: |
+        echo "sha=$(shasum -a 256 SlicerSelector.app.zip | awk '{print $1}')" >> $GITHUB_OUTPUT
 
     - name: Checkout homebrew-SlicerSelector
       uses: actions/checkout@v4
@@ -43,13 +78,14 @@ jobs:
         version=$(echo ${{ github.ref }} | sed 's|^refs/tags/v||')
         cd homebrew-SlicerSelector
         
-        # Use different delimiter and escape quotes
+        # Update version and SHA256
         sed -i '' "s|version \".*\"|version \"$version\"|" Casks/slicer-selector.rb
         sed -i '' "s|sha256 \".*\"|sha256 \"${{ steps.shasum.outputs.sha }}\"|" Casks/slicer-selector.rb
         
+        # Commit and push changes
         git config user.name github-actions
         git config user.email github-actions@github.com
         git add Casks/slicer-selector.rb
         git commit -m "Update cask to version $version"
         git push
-      if: startsWith(github.ref, 'refs/tags/v')  # Only update cask for v-prefixed tags
+      if: startsWith(github.ref, 'refs/tags/v')

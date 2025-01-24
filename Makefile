@@ -10,7 +10,7 @@ INSTALL_DIR = $(PREFIX)
 INFO_PLIST = $(APP_NAME)/Contents/Info.plist
 
 # Default target
-all: build modify_plist resign
+all: build modify_plist resign notarize
 
 # Build target
 build:
@@ -99,16 +99,31 @@ modify_plist:
 	@/usr/libexec/PlistBuddy -c "Delete :NSSiriUsageDescription" $(INFO_PLIST) 2>/dev/null || true
 	@/usr/libexec/PlistBuddy -c "Delete :NSSystemAdministrationUsageDescription" $(INFO_PLIST) 2>/dev/null || true
 
-# Resign target
+
 resign:
 	@echo "Re-signing application bundle..."
 	@codesign --remove-signature $(APP_NAME)
-	@codesign --force --deep --sign - \
+	@codesign --force --deep \
+		--sign "$(CERT_NAME)" \
 		--options runtime \
 		--entitlements entitlements.plist \
 		$(APP_NAME)
-	@echo "Verifying signature..."
 	@codesign -vvv $(APP_NAME)
+	@codesign -dv --verbose=4 SlicerSelector.app
+
+notarize: build modify_plist resign
+	@echo "Submitting for notarization..."
+	@ditto -c -k --keepParent $(APP_NAME) $(APP_NAME).zip
+	@xcrun notarytool submit $(APP_NAME).zip \
+		--apple-id $(AC_USERNAME) \
+		--password $(AC_PASSWORD) \
+		--team-id $(TEAM_ID) \
+		--wait
+	@xcrun stapler staple $(APP_NAME)
+	@echo "Notarization complete!"
+
+release: clean notarize
+	@echo "Release build ready: $(APP_NAME)"
 
 # Install target
 install: all
