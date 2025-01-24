@@ -1,12 +1,22 @@
 #  🍰 Slicer Selector
 
+<p align=center>
+    <img src="./img/SlicerSelector.png" width="200">
+</p>
+
 Slicer Selector becomes your default app for opening `.stl`, `.3mf` files. 
 Upon opening a file, it will auto discover all your installed slicers, and prompt you which one to use. 
 
 
 ![](/img/example2.png)
 
-Current list of supported slicers
+
+If a slicer is already running, it will prompt you for which process you wish to use. 
+
+![](./img/process.png)
+
+
+⭐ Current list of supported slicers 
 
 - AnkerMake Studio
 - BambuStudio  
@@ -24,6 +34,8 @@ Current list of supported slicers
 - Slicer
 - SuperSlicer
 - UltiMaker Cura
+
+Pull requests/Bug reports welcome! 
 
 
 Select prefered slicer while opening file
