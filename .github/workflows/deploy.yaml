@@ -27,19 +27,25 @@ jobs:
         echo "TEAM_ID=$TEAM_ID" >> $GITHUB_ENV
         echo "SIGNING_CERTIFICATE=$SIGNING_CERTIFICATE" >> $GITHUB_ENV
         echo "SIGNING_CERTIFICATE_PASSWORD=$SIGNING_CERTIFICATE_PASSWORD" >> $GITHUB_ENV
-        
+
     - name: Import signing certificate
       run: |
-        echo "${{ secrets.SIGNING_CERTIFICATE }}" | base64 --decode > developer_id.p12
+        echo "$SIGNING_CERTIFICATE" | base64 --decode > developer_id.p12
         security create-keychain -p temp build.keychain
         security default-keychain -s build.keychain
         security unlock-keychain -p temp build.keychain
         # Import without a password
         security import developer_id.p12 -k build.keychain \
-          -P "" \
+          -P "$SIGNING_CERTIFICATE_PASSWORD" \
           -T /usr/bin/codesign
         security set-key-partition-list -S apple-tool:,apple: -s -k temp build.keychain
+        # Verify the certificate is imported
+        security find-identity -v -p codesigning
 
+    - name: Verify certificate
+      run: |
+        security find-identity -v -p codesigning
+        
     - name: Build app
       run: |
         make build
