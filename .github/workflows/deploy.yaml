@@ -21,12 +21,14 @@ jobs:
         TEAM_ID: ${{ secrets.TEAM_ID }}
         SIGNING_CERTIFICATE: ${{ secrets.SIGNING_CERTIFICATE }}
         SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
+        CERT_NAME: ${{ secrets.CERT_NAME }}
       run: |
         echo "AC_USERNAME=$AC_USERNAME" >> $GITHUB_ENV
         echo "AC_PASSWORD=$AC_PASSWORD" >> $GITHUB_ENV
         echo "TEAM_ID=$TEAM_ID" >> $GITHUB_ENV
         echo "SIGNING_CERTIFICATE=$SIGNING_CERTIFICATE" >> $GITHUB_ENV
         echo "SIGNING_CERTIFICATE_PASSWORD=$SIGNING_CERTIFICATE_PASSWORD" >> $GITHUB_ENV
+        echo "CERT_NAME=$CERT_NAME" >> $GITHUB_ENV
 
     - name: Import signing certificate
       run: |
