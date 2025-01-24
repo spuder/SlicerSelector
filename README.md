@@ -6,6 +6,26 @@ Upon opening a file, it will auto discover all your installed slicers, and promp
 
 ![](/img/example2.png)
 
+Current list of supported slicers
+
+- AnkerMake Studio
+- BambuStudio  
+- Blender
+- ChiTuBox
+- IdeaMaker
+- LycheeSlicer
+- MatterControl
+- OpenSCAD
+- OrcaSlicer
+- Proton Workshop
+- PrusaSlicer
+- Simplify3D
+- Slic3r
+- Slicer
+- SuperSlicer
+- UltiMaker Cura
+
+
 Select prefered slicer while opening file
 
 ![](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGtjcXJ2cTR2Z3pxbTA5dHhkdnQzOTcyaGJldW0wd2VsMW1qd2gycyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/t45i9kYxAKKfIhQS4r/giphy.gif)
