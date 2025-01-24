@@ -104,7 +104,7 @@ resign:
 	@echo "Re-signing application bundle..."
 	@codesign --remove-signature $(APP_NAME)
 	@codesign --force --deep \
-		--sign '$(CERT_NAME)' \
+		--sign "$(CERT_NAME)" \
 		--options runtime \
 		--entitlements entitlements.plist \
 		$(APP_NAME)

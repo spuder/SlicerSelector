@@ -36,13 +36,15 @@ jobs:
         security create-keychain -p temp build.keychain
         security default-keychain -s build.keychain
         security unlock-keychain -p temp build.keychain
-        # Import without a password
         security import developer_id.p12 -k build.keychain \
           -P "$SIGNING_CERTIFICATE_PASSWORD" \
           -T /usr/bin/codesign
         security set-key-partition-list -S apple-tool:,apple: -s -k temp build.keychain
-        # Verify the certificate is imported
         security find-identity -v -p codesigning
+
+    - name: Debug certificate name
+      run: |
+        echo "CERT_NAME=$CERT_NAME"
 
     - name: Verify certificate
       run: |
