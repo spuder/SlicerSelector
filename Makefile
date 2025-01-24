@@ -48,7 +48,7 @@ modify_plist:
 	@/usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes:0:CFBundleTypeRole string Viewer" $(INFO_PLIST)
 	@/usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes:0:LSIsAppleDefaultForType bool true" $(INFO_PLIST)
 	@/usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes:0:LSHandlerRank string Default" $(INFO_PLIST)
-	@/usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes:0:CFBundleTypeIconFile string images/SlicerSelector.icns" $(INFO_PLIST)
+	@/usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes:0:CFBundleTypeIconFile string SlicerSelector.icns" $(INFO_PLIST)
 	@/usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes:1 dict" $(INFO_PLIST)
 	@/usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes:1:CFBundleTypeExtensions array" $(INFO_PLIST)
 	@/usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes:1:CFBundleTypeExtensions:0 string stl" $(INFO_PLIST)
@@ -85,6 +85,7 @@ modify_plist:
 	@/usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes:4:LSHandlerRank string Default" $(INFO_PLIST)
 	@/usr/libexec/PlistBuddy -c "Add :CFBundleDocumentTypes:4:CFBundleTypeIconFile string images/SlicerSelector.icns" $(INFO_PLIST)
 
+
 	@echo "Removing unnecessary usage descriptions from Info.plist"
 	@/usr/libexec/PlistBuddy -c "Delete :NSAppleEventsUsageDescription" $(INFO_PLIST) 2>/dev/null || true
 	@/usr/libexec/PlistBuddy -c "Delete :NSAppleMusicUsageDescription" $(INFO_PLIST) 2>/dev/null || true
@@ -100,13 +101,14 @@ modify_plist:
 
 # Resign target
 resign:
-	@echo "Checking if app needs to be resigned..."
-	@if ! codesign -v $(APP_NAME) 2>/dev/null; then \
-		echo "Resigning the app..."; \
-		codesign --force --deep --sign - $(APP_NAME); \
-	else \
-		echo "App signature is valid. No need to resign."; \
-	fi
+	@echo "Re-signing application bundle..."
+	@codesign --remove-signature $(APP_NAME)
+	@codesign --force --deep --sign - \
+		--options runtime \
+		--entitlements entitlements.plist \
+		$(APP_NAME)
+	@echo "Verifying signature..."
+	@codesign -vvv $(APP_NAME)
 
 # Install target
 install: all
@@ -116,6 +118,10 @@ install: all
 		rm -rf "$(INSTALL_DIR)/$(APP_NAME)"; \
 	fi
 	@cp -R $(APP_NAME) $(INSTALL_DIR)
+	@echo "Resetting icon cache..."
+	@-touch /Applications/.DS_Store
+	@-touch ~/Applications/.DS_Store
+	@-killall Finder || true
 	@echo "Installation complete"
 
 # Clean target
