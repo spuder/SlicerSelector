@@ -120,6 +120,8 @@ notarize: build modify_plist resign
 		--team-id $(TEAM_ID) \
 		--wait
 	@xcrun stapler staple $(APP_NAME)
+	@echo "Creating final distributable .zip..."
+	@ditto -c -k --keepParent $(APP_NAME) $(APP_NAME)-notarized.zip
 	@echo "Notarization complete!"
 
 release: clean notarize
