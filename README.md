@@ -64,7 +64,7 @@ Once complete there will be a new app at `/Applications/SlicerSelector.app`. It 
 
 SlicerSelector looks for popular slicers in the  `/Applications`. When a `.3mf` or `.stl` file is opened it redirects to the chosen app.
 
-## ❔ Why would you want this? 
+## ? Why would you want this? 
 
 Maybe you have multiple brands of printers that need their own slicers. 
 Maybe you have multiple types of printers (resin / fdm / sls) and want to easily switch between them. 
