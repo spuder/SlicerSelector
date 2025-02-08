@@ -73,6 +73,12 @@ Maybe you have multiple types of printers (resin / fdm / sls) and want to easily
 
 That is a good solution, however thats a few extra clicks and it doesn't work when exporting directly from Fusion 360
 
+## Icons
+
+For improved quicklook icons in OSXFinder, Install [ThumbHost3mf](https://github.com/DavidPhillipOster/ThumbHost3mf). 
+
+
+
 ## 💻 Development
 
 
