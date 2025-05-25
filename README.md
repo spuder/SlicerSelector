@@ -34,6 +34,7 @@ If a slicer is already running, it will prompt you for which process you wish to
 - Slicer
 - SuperSlicer
 - UltiMaker Cura
+- JusPrin
 
 Pull requests/Bug reports welcome! 
 
