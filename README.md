@@ -88,8 +88,13 @@ The [applescript extension](https://marketplace.visualstudio.com/items?itemName=
 1. Edit `SlicerSelector.applescript` 
 2. Run `make all && make install` 
 
-
 Pull Requests welcome. 
+
+
+## Versions
+
+To release a new version, a maintainer runs the `./release.sh` script. Maintainer will need `git-semver` installed. 
+
 
 ## Notes
 
