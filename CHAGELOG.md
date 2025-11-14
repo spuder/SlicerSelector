@@ -1,3 +1,15 @@
+# v0.11.0
+
+Add support for 
+- AnyCubic Slicer
+- AnyCubic Slicer
+- AnyCubic Slicer Next
+- Creality Print
+- ElegooSlicer
+- eufyMake Studio
+- Snapmaker Luban
+- Snapmaker Orca
+
 # v0.3.0
 
 Add support for obj, gcode, amf files
