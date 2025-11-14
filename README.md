@@ -26,6 +26,7 @@ If a slicer is already running, it will prompt you for which process you wish to
 - LycheeSlicer
 - MatterControl
 - OpenSCAD
+- Orca-Flashforge
 - OrcaSlicer
 - Proton Workshop
 - PrusaSlicer

@@ -7,7 +7,7 @@ on open theFile
 end open
 
 on handleSlicerSelection(theFile)
-    set slicerList to {"AnkerMake Studio", "BambuStudio", "Blender", "ChiTuBox", "IdeaMaker", "LycheeSlicer", "MatterControl", "OpenSCAD", "OrcaSlicer", "Proton Workshop", "PrusaSlicer", "Simplify3D", "Slic3r", "Slicer", "SuperSlicer", "ThumbHost3mf", "UltiMaker Cura", "JusPrin"}
+    set slicerList to {"AnkerMake Studio", "BambuStudio", "Blender", "ChiTuBox", "IdeaMaker", "LycheeSlicer", "MatterControl", "OpenSCAD", "Orca-Flashforge", "OrcaSlicer", "Proton Workshop", "PrusaSlicer", "Simplify3D", "Slic3r", "Slicer", "SuperSlicer", "ThumbHost3mf", "UltiMaker Cura", "JusPrin"}
     set installedSlicers to {}
 
     -- Check for installed slicers
