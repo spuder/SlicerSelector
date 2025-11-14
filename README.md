@@ -19,9 +19,14 @@ If a slicer is already running, it will prompt you for which process you wish to
 ⭐ Current list of supported slicers 
 
 - AnkerMake Studio
+- AnyCubic Slicer
+- AnyCubic Slicer Next
 - BambuStudio  
 - Blender
 - ChiTuBox
+- Creality Print
+- ElegooSlicer
+- eufyMake Studio
 - IdeaMaker
 - LycheeSlicer
 - MatterControl
@@ -33,6 +38,8 @@ If a slicer is already running, it will prompt you for which process you wish to
 - Simplify3D
 - Slic3r
 - Slicer
+- Snapmaker Luban
+- Snapmaker Orca
 - SuperSlicer
 - UltiMaker Cura
 - JusPrin

@@ -7,12 +7,12 @@ on open theFile
 end open
 
 on handleSlicerSelection(theFile)
-    set slicerList to {"AnkerMake Studio", "BambuStudio", "Blender", "ChiTuBox", "IdeaMaker", "LycheeSlicer", "MatterControl", "OpenSCAD", "Orca-Flashforge", "OrcaSlicer", "Proton Workshop", "PrusaSlicer", "Simplify3D", "Slic3r", "Slicer", "SuperSlicer", "ThumbHost3mf", "UltiMaker Cura", "JusPrin"}
+    set slicerList to {"AnkerMake Studio", "AnyCubic Slicer", "AnyCubic Slicer Next", "BambuStudio", "Blender", "ChiTuBox", "Creality Print", "ElegooSlicer", "eufyMake Studio", "IdeaMaker", "LycheeSlicer", "MatterControl", "OpenSCAD", "Orca-Flashforge", "OrcaSlicer", "Proton Workshop", "PrusaSlicer", "Simplify3D", "Slic3r", "Slicer", "Snapmaker Luban", "Snapmaker Orca", "SuperSlicer", "ThumbHost3mf", "UltiMaker Cura", "JusPrin"}
     set installedSlicers to {}
 
     -- Check for installed slicers
     repeat with slicerName in slicerList
-        set appPath to "/Applications/" & slicerName & ".app"
+        set appPath to getAppPath(slicerName)
         try
             do shell script "ls " & quoted form of appPath
             set end of installedSlicers to slicerName
@@ -103,7 +103,7 @@ on handleSlicerSelection(theFile)
 end handleSlicerSelection
 
 on startNewSlicerInstance(chosenSlicer, theFile)
-    set slicerPath to "/Applications/" & chosenSlicer & ".app"
+    set slicerPath to getAppPath(chosenSlicer)
     if theFile is not missing value then
         try
             do shell script "open -n -a " & quoted form of slicerPath & " " & quoted form of (POSIX path of theFile)
@@ -118,3 +118,15 @@ on startNewSlicerInstance(chosenSlicer, theFile)
         end try
     end if
 end startNewSlicerInstance
+
+on getAppPath(slicerName)
+    -- Special cases with non-standard paths or names
+    if slicerName is "AnyCubic Slicer" then return "/Applications/AnycubicSlicer.app"
+    if slicerName is "AnyCubic Slicer Next" then return "/Applications/AnycubicSlicerNext.app"
+    if slicerName is "Creality Print" then return "/Applications/Creality Print.app"
+    if slicerName is "Snapmaker Luban" then return "/Applications/Snapmaker Luban.app"
+    if slicerName is "Snapmaker Orca" then return "/Applications/Snapmaker Orca.app"
+    
+    -- Default: standard naming in /Applications/
+    return "/Applications/" & slicerName & ".app"
+end getAppPath
