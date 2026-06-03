@@ -65,10 +65,6 @@ brew tap spuder/SlicerSelector
 brew install slicer-selector
 ```
 
-Once complete there will be a new app at `/Applications/SlicerSelector.app`. It should be the default app for `.gcode`,`.stl`, `.3mf`, `.amf`, `.obj` files. 
-
-Warning: Due to apple signing limitations, Tahoe users will need to navigate to /Applications and right click on the app and click 'run'. This is a one time task to allow your OS to trust unsigned apps. 
-
 
 ## ⚙️ How it works
 
