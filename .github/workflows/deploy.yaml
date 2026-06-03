@@ -92,7 +92,7 @@ jobs:
 
           # Ensure postflight quarantine removal is present (app is ad-hoc signed, not notarized)
           grep -q "postflight" Casks/slicer-selector.rb || \
-            sed -i '' 's|  app "SlicerSelector.app"|  app "SlicerSelector.app"\n\n  postflight do\n    system_command "/usr/bin/xattr",\n      args: ["-dr", "com.apple.quarantine", "#{appdir}/SlicerSelector.app"]\n  end|' Casks/slicer-selector.rb
+            sed -i '' 's|    app "SlicerSelector.app"|    app "SlicerSelector.app"\n\n    postflight do\n      system_command "/usr/bin/xattr",\n        args: ["-dr", "com.apple.quarantine", "\#{appdir}/SlicerSelector.app"]\n    end|' Casks/slicer-selector.rb
 
           # Commit and push changes
           git config user.name github-actions
