@@ -14,35 +14,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up environment
-        env:
-          SIGNING_CERTIFICATE: ${{ secrets.SIGNING_CERTIFICATE }}
-          SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
-          CERT_NAME: ${{ secrets.CERT_NAME }}
-        run: |
-          echo "SIGNING_CERTIFICATE=$SIGNING_CERTIFICATE" >> $GITHUB_ENV
-          echo "SIGNING_CERTIFICATE_PASSWORD=$SIGNING_CERTIFICATE_PASSWORD" >> $GITHUB_ENV
-          echo "CERT_NAME=$CERT_NAME" >> $GITHUB_ENV
-
-      - name: Import signing certificate
-        run: |
-          echo "$SIGNING_CERTIFICATE" | base64 --decode > developer_id.p12
-          security create-keychain -p temp build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p temp build.keychain
-          security import developer_id.p12 -k build.keychain \
-            -P "$SIGNING_CERTIFICATE_PASSWORD" \
-            -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple: -s -k temp build.keychain
-          security find-identity -v -p codesigning
-
-      - name: Debug certificate name
-        run: |
-          echo "CERT_NAME=$CERT_NAME"
-
-      - name: Verify certificate
-        run: |
-          security find-identity -v -p codesigning
+      # Uncomment to re-enable notarization (requires active Apple Developer subscription)
+      # - name: Set up environment
+      #   env:
+      #     SIGNING_CERTIFICATE: ${{ secrets.SIGNING_CERTIFICATE }}
+      #     SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
+      #     CERT_NAME: ${{ secrets.CERT_NAME }}
+      #   run: |
+      #     echo "SIGNING_CERTIFICATE=$SIGNING_CERTIFICATE" >> $GITHUB_ENV
+      #     echo "SIGNING_CERTIFICATE_PASSWORD=$SIGNING_CERTIFICATE_PASSWORD" >> $GITHUB_ENV
+      #     echo "CERT_NAME=$CERT_NAME" >> $GITHUB_ENV
+      #
+      # - name: Import signing certificate
+      #   run: |
+      #     echo "$SIGNING_CERTIFICATE" | base64 --decode > developer_id.p12
+      #     security create-keychain -p temp build.keychain
+      #     security default-keychain -s build.keychain
+      #     security unlock-keychain -p temp build.keychain
+      #     security import developer_id.p12 -k build.keychain \
+      #       -P "$SIGNING_CERTIFICATE_PASSWORD" \
+      #       -T /usr/bin/codesign
+      #     security set-key-partition-list -S apple-tool:,apple: -s -k temp build.keychain
+      #     security find-identity -v -p codesigning
+      #
+      # - name: Verify certificate
+      #   run: security find-identity -v -p codesigning
 
       - name: Build app
         run: |
@@ -51,7 +47,7 @@ jobs:
 
       - name: Sign app
         run: |
-          make resign
+          make resign-adhoc
 
       - name: Create ZIP archive
         run: |
@@ -93,6 +89,10 @@ jobs:
           # Update version and SHA256
           sed -i '' "s|version \".*\"|version \"$version\"|" Casks/slicer-selector.rb
           sed -i '' "s|sha256 \".*\"|sha256 \"${{ steps.shasum.outputs.sha }}\"|" Casks/slicer-selector.rb
+
+          # Ensure postflight quarantine removal is present (app is ad-hoc signed, not notarized)
+          grep -q "postflight" Casks/slicer-selector.rb || \
+            sed -i '' 's|  app "SlicerSelector.app"|  app "SlicerSelector.app"\n\n  postflight do\n    system_command "/usr/bin/xattr",\n      args: ["-dr", "com.apple.quarantine", "#{appdir}/SlicerSelector.app"]\n  end|' Casks/slicer-selector.rb
 
           # Commit and push changes
           git config user.name github-actions

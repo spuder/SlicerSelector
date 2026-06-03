@@ -9,8 +9,8 @@ PREFIX ?= /Applications
 INSTALL_DIR = $(PREFIX)
 INFO_PLIST = $(APP_NAME)/Contents/Info.plist
 
-# Default target
-all: build modify_plist resign notarize
+# Default target (ad-hoc signing, no notarization)
+all: build modify_plist resign-adhoc
 
 # Build target
 build:
@@ -100,8 +100,14 @@ modify_plist:
 	@/usr/libexec/PlistBuddy -c "Delete :NSSystemAdministrationUsageDescription" $(INFO_PLIST) 2>/dev/null || true
 
 
-resign:
-	@echo "Re-signing application bundle..."
+resign-adhoc:
+	@echo "Ad-hoc signing application bundle..."
+	@codesign --remove-signature $(APP_NAME)
+	@codesign --force --deep --sign - $(APP_NAME)
+	@codesign -vvv $(APP_NAME)
+
+resign-apple:
+	@echo "Developer ID signing application bundle..."
 	@codesign --remove-signature $(APP_NAME)
 	@codesign --force --deep \
 		--sign "$(CERT_NAME)" \
@@ -109,7 +115,7 @@ resign:
 		--entitlements entitlements.plist \
 		$(APP_NAME)
 	@codesign -vvv $(APP_NAME)
-	@codesign -dv --verbose=4 SlicerSelector.app
+	@codesign -dv --verbose=4 $(APP_NAME)
 
 notarize: build modify_plist resign
 	@echo "Submitting for notarization..."
@@ -145,4 +151,4 @@ install: all
 clean:
 	rm -rf $(APP_NAME)
 
-.PHONY: all build modify_plist resign install clean
+.PHONY: all build modify_plist resign-adhoc resign-apple install clean
