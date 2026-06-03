@@ -1,3 +1,5 @@
 SlicerSelector.app/
 .envrc
 *.zip
+*.private-key.pem
+*.p12

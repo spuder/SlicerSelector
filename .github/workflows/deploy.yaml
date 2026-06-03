@@ -16,16 +16,10 @@ jobs:
 
       - name: Set up environment
         env:
-          AC_USERNAME: ${{ secrets.AC_USERNAME }}
-          AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
-          TEAM_ID: ${{ secrets.TEAM_ID }}
           SIGNING_CERTIFICATE: ${{ secrets.SIGNING_CERTIFICATE }}
           SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
           CERT_NAME: ${{ secrets.CERT_NAME }}
         run: |
-          echo "AC_USERNAME=$AC_USERNAME" >> $GITHUB_ENV
-          echo "AC_PASSWORD=$AC_PASSWORD" >> $GITHUB_ENV
-          echo "TEAM_ID=$TEAM_ID" >> $GITHUB_ENV
           echo "SIGNING_CERTIFICATE=$SIGNING_CERTIFICATE" >> $GITHUB_ENV
           echo "SIGNING_CERTIFICATE_PASSWORD=$SIGNING_CERTIFICATE_PASSWORD" >> $GITHUB_ENV
           echo "CERT_NAME=$CERT_NAME" >> $GITHUB_ENV
@@ -58,15 +52,6 @@ jobs:
       - name: Sign app
         run: |
           make resign
-
-      - name: Notarize app
-        run: |
-          make notarize
-
-      - name: Verify notarization
-        run: |
-          xcrun stapler validate SlicerSelector.app
-          spctl -a -vv SlicerSelector.app
 
       - name: Create ZIP archive
         run: |
@@ -108,6 +93,10 @@ jobs:
           # Update version and SHA256
           sed -i '' "s|version \".*\"|version \"$version\"|" Casks/slicer-selector.rb
           sed -i '' "s|sha256 \".*\"|sha256 \"${{ steps.shasum.outputs.sha }}\"|" Casks/slicer-selector.rb
+
+          # Ensure no_quarantine is present (required since app is not notarized)
+          grep -q "no_quarantine" Casks/slicer-selector.rb || \
+            sed -i '' 's|app "SlicerSelector.app"|app "SlicerSelector.app"\n\n  no_quarantine|' Casks/slicer-selector.rb
 
           # Commit and push changes
           git config user.name github-actions

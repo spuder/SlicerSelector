@@ -22,7 +22,7 @@ on handleSlicerSelection(theFile)
     end repeat
 
     if (count of installedSlicers) is 0 then
-        display dialog "No supported slicers found in the Applications folder." buttons {"OK"} default button "OK"
+        tell me to display dialog "No supported slicers found in the Applications folder." buttons {"OK"} default button "OK"
     else
         -- Prompt user to select a slicer
         set defaultSlicer to "BambuStudio"
@@ -31,7 +31,7 @@ on handleSlicerSelection(theFile)
         else
             set defaultItems to (item 1 of installedSlicers)
         end if
-        set selectedSlicer to choose from list installedSlicers with prompt "Select a slicer to open:" default items defaultItems
+        tell me to set selectedSlicer to choose from list installedSlicers with prompt "Select a slicer to open:" default items defaultItems
 
         if selectedSlicer is not false then
             set chosenSlicer to item 1 of selectedSlicer
@@ -60,7 +60,7 @@ on handleSlicerSelection(theFile)
                     set end of choiceList to (item 1 of processInfo) & " - " & (item 2 of processInfo)
                 end repeat
 
-                set userChoice to choose from list choiceList with prompt "Select a process or start a new one:" default items (item 1 of choiceList)
+                tell me to set userChoice to choose from list choiceList with prompt "Select a process or start a new one:" default items (item 1 of choiceList)
 
                 if userChoice is not false then
                     set chosenProcess to item 1 of userChoice
@@ -82,7 +82,7 @@ on handleSlicerSelection(theFile)
 							set theFilePath to POSIX path of theFile
 							do shell script "open -a " & quoted form of chosenSlicer & " --args " & quoted form of theFilePath
                             on error errMsg
-                                display dialog "Error: " & errMsg buttons {"OK"} default button "OK"
+                                tell me to display dialog "Error: " & errMsg buttons {"OK"} default button "OK"
                             end try
                         else
                             try
@@ -90,7 +90,7 @@ on handleSlicerSelection(theFile)
                                     set frontmost of the first process whose unix id is chosenPID to true
                                 end tell
                             on error errMsg
-                                display dialog "Error: " & errMsg buttons {"OK"} default button "OK"
+                                tell me to display dialog "Error: " & errMsg buttons {"OK"} default button "OK"
                             end try
                         end if
                     end if
@@ -108,13 +108,13 @@ on startNewSlicerInstance(chosenSlicer, theFile)
         try
             do shell script "open -n -a " & quoted form of slicerPath & " " & quoted form of (POSIX path of theFile)
         on error errMsg
-            display dialog "Error: " & errMsg buttons {"OK"} default button "OK"
+            tell me to display dialog "Error: " & errMsg buttons {"OK"} default button "OK"
         end try
     else
         try
             do shell script "open -n -a " & quoted form of slicerPath
         on error errMsg
-            display dialog "Error: " & errMsg buttons {"OK"} default button "OK"
+            tell me to display dialog "Error: " & errMsg buttons {"OK"} default button "OK"
         end try
     end if
 end startNewSlicerInstance
