@@ -26,6 +26,7 @@ build:
 	@osacompile -l JavaScript -o $(APP_NAME) $(SCRIPT_SRC)
 	@mkdir -p $(APP_NAME)/Contents/Resources
 	@cp -f $(ICON_FILE) $(APP_NAME)/Contents/Resources/SlicerSelector.icns
+	@rm -f $(APP_NAME)/Contents/Resources/Assets.car
 	@if [ -f "$(APP_NAME)/Contents/MacOS/droplet" ]; then \
 		mv "$(APP_NAME)/Contents/MacOS/droplet" "$(APP_NAME)/Contents/MacOS/$(SCRIPT_NAME)"; \
 	elif [ -f "$(APP_NAME)/Contents/MacOS/applet" ]; then \
