@@ -1,9 +1,11 @@
 name: Build and Release
 
 on:
-  push:
-    tags:
-      - "v*" # Only trigger on version tags starting with 'v'
+  workflow_dispatch: # Trigger manually from GitHub Actions UI
+  # Uncomment to re-enable automatic builds when Tahoe GitHub runners are available:
+  # push:
+  #   tags:
+  #     - "v*"
 
 jobs:
   build-and-release:
