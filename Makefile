@@ -23,7 +23,7 @@ build:
 		exit 1; \
 	fi
 	@echo "Building $(APP_NAME) with custom icon $(ICON_FILE)"
-	@osacompile -o $(APP_NAME) $(SCRIPT_SRC)
+	@osacompile -l JavaScript -o $(APP_NAME) $(SCRIPT_SRC)
 	@mkdir -p $(APP_NAME)/Contents/Resources
 	@cp -f $(ICON_FILE) $(APP_NAME)/Contents/Resources/SlicerSelector.icns
 	@if [ -f "$(APP_NAME)/Contents/MacOS/droplet" ]; then \

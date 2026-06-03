@@ -1,132 +1,133 @@
-on run
-    handleSlicerSelection(missing value)
-end run
+var app = Application.currentApplication();
+app.includeStandardAdditions = true;
 
-on open theFile
-    handleSlicerSelection(theFile)
-end open
+function run() {
+    handleSlicerSelection(null);
+}
 
-on handleSlicerSelection(theFile)
-    set slicerList to {"AnkerMake Studio", "AnyCubic Slicer", "AnyCubic Slicer Next", "BambuStudio", "Blender", "ChiTuBox", "Creality Print", "ElegooSlicer", "eufyMake Studio", "IdeaMaker", "LycheeSlicer", "MatterControl", "OpenSCAD", "Orca-Flashforge", "OrcaSlicer", "Proton Workshop", "PrusaSlicer", "Simplify3D", "Slic3r", "Slicer", "Snapmaker Luban", "Snapmaker Orca", "SuperSlicer", "ThumbHost3mf", "UltiMaker Cura", "JusPrin"}
-    set installedSlicers to {}
+function open(files) {
+    var f = files[0];
+    handleSlicerSelection(typeof f === "string" ? f : f.toString());
+}
 
-    -- Check for installed slicers
-    repeat with slicerName in slicerList
-        set appPath to getAppPath(slicerName)
-        try
-            do shell script "ls " & quoted form of appPath
-            set end of installedSlicers to slicerName
-        on error
-            -- Slicer not found, skip
-        end try
-    end repeat
+function handleSlicerSelection(theFilePath) {
+    var slicerList = [
+        "AnkerMake Studio", "AnyCubic Slicer", "AnyCubic Slicer Next",
+        "BambuStudio", "Blender", "ChiTuBox", "Creality Print",
+        "ElegooSlicer", "eufyMake Studio", "IdeaMaker", "LycheeSlicer",
+        "MatterControl", "OpenSCAD", "Orca-Flashforge", "OrcaSlicer",
+        "Proton Workshop", "PrusaSlicer", "Simplify3D", "Slic3r", "Slicer",
+        "Snapmaker Luban", "Snapmaker Orca", "SuperSlicer", "ThumbHost3mf",
+        "UltiMaker Cura", "JusPrin"
+    ];
 
-    if (count of installedSlicers) is 0 then
-        tell me to display dialog "No supported slicers found in the Applications folder." buttons {"OK"} default button "OK"
-    else
-        -- Prompt user to select a slicer
-        set defaultSlicer to "BambuStudio"
-        if defaultSlicer is in installedSlicers then
-            set defaultItems to {defaultSlicer}
-        else
-            set defaultItems to (item 1 of installedSlicers)
-        end if
-        tell me to set selectedSlicer to choose from list installedSlicers with prompt "Select a slicer to open:" default items defaultItems
+    var installedSlicers = [];
+    for (var i = 0; i < slicerList.length; i++) {
+        try {
+            app.doShellScript("ls " + quotedForm(getAppPath(slicerList[i])));
+            installedSlicers.push(slicerList[i]);
+        } catch(e) {}
+    }
 
-        if selectedSlicer is not false then
-            set chosenSlicer to item 1 of selectedSlicer
+    if (installedSlicers.length === 0) {
+        app.displayDialog("No supported slicers found in the Applications folder.", {
+            buttons: ["OK"], defaultButton: "OK"
+        });
+        return;
+    }
 
-            -- Search for running processes
-            try
-                set slicerProcesses to do shell script "ps -ax -o pid,command | grep -i " & quoted form of chosenSlicer & " | grep -v grep"
-            on error
-                startNewSlicerInstance(chosenSlicer, theFile)
-                return
-            end try
+    var defaultSlicer = "BambuStudio";
+    var defaultItems = installedSlicers.indexOf(defaultSlicer) !== -1
+        ? [defaultSlicer]
+        : [installedSlicers[0]];
 
-            -- Parse process lines
-            set processLines to paragraphs of slicerProcesses
-            set processMapping to {}
-            repeat with processLine in processLines
-                set pid to first word of processLine
-                set appPath to text ((offset of pid in processLine) + (length of pid) + 1) thru -1 of processLine
-                set end of processMapping to {pid, appPath}
-            end repeat
+    var selectedSlicer = app.chooseFromList(installedSlicers, {
+        withPrompt: "Select a slicer to open:",
+        defaultItems: defaultItems
+    });
+    if (!selectedSlicer) return;
 
-            -- Show process selection dialog
-            if (count of processMapping) > 0 then
-                set choiceList to {chosenSlicer & " - (New)"}
-                repeat with processInfo in processMapping
-                    set end of choiceList to (item 1 of processInfo) & " - " & (item 2 of processInfo)
-                end repeat
+    var chosenSlicer = selectedSlicer[0];
 
-                tell me to set userChoice to choose from list choiceList with prompt "Select a process or start a new one:" default items (item 1 of choiceList)
+    var slicerProcesses;
+    try {
+        slicerProcesses = app.doShellScript(
+            "ps -ax -o pid,command | grep -i " + quotedForm(chosenSlicer) + " | grep -v grep"
+        );
+    } catch(e) {
+        startNewSlicerInstance(chosenSlicer, theFilePath);
+        return;
+    }
 
-                if userChoice is not false then
-                    set chosenProcess to item 1 of userChoice
-                    if chosenProcess ends with " - (New)" then
-                        startNewSlicerInstance(chosenSlicer, theFile)
-                    else
-					set chosenPID to first word of chosenProcess
-					if theFile is not missing value then
-						try
-							tell application "System Events"
-								set targetProcess to the first process whose unix id is (chosenPID as integer)
-								set frontmost of targetProcess to true
-								repeat until frontmost of targetProcess is true
-									delay 0.1
-								end repeat
-							end tell
+    var processMapping = [];
+    var lines = slicerProcesses.split("\n");
+    for (var j = 0; j < lines.length; j++) {
+        var m = lines[j].trim().match(/^(\d+)\s+(.+)$/);
+        if (m) processMapping.push([m[1], m[2]]);
+    }
 
-							-- Open the file in the existing process
-							set theFilePath to POSIX path of theFile
-							do shell script "open -a " & quoted form of chosenSlicer & " --args " & quoted form of theFilePath
-                            on error errMsg
-                                tell me to display dialog "Error: " & errMsg buttons {"OK"} default button "OK"
-                            end try
-                        else
-                            try
-                                tell application "System Events"
-                                    set frontmost of the first process whose unix id is chosenPID to true
-                                end tell
-                            on error errMsg
-                                tell me to display dialog "Error: " & errMsg buttons {"OK"} default button "OK"
-                            end try
-                        end if
-                    end if
-                end if
-            else
-                startNewSlicerInstance(chosenSlicer, theFile)
-            end if
-        end if
-    end if
-end handleSlicerSelection
+    if (processMapping.length === 0) {
+        startNewSlicerInstance(chosenSlicer, theFilePath);
+        return;
+    }
 
-on startNewSlicerInstance(chosenSlicer, theFile)
-    set slicerPath to getAppPath(chosenSlicer)
-    if theFile is not missing value then
-        try
-            do shell script "open -n -a " & quoted form of slicerPath & " " & quoted form of (POSIX path of theFile)
-        on error errMsg
-            tell me to display dialog "Error: " & errMsg buttons {"OK"} default button "OK"
-        end try
-    else
-        try
-            do shell script "open -n -a " & quoted form of slicerPath
-        on error errMsg
-            tell me to display dialog "Error: " & errMsg buttons {"OK"} default button "OK"
-        end try
-    end if
-end startNewSlicerInstance
+    var choiceList = [chosenSlicer + " - (New)"];
+    for (var k = 0; k < processMapping.length; k++) {
+        choiceList.push(processMapping[k][0] + " - " + processMapping[k][1]);
+    }
 
-on getAppPath(slicerName)
-    -- Special cases with non-standard paths or names
-    if slicerName is "AnyCubic Slicer" then return "/Applications/AnycubicSlicer.app"
-    if slicerName is "AnyCubic Slicer Next" then return "/Applications/AnycubicSlicerNext.app"
-    if slicerName is "Creality Print" then return "/Applications/Creality Print.app"
-    if slicerName is "Snapmaker Luban" then return "/Applications/Snapmaker Luban.app"
-    if slicerName is "Snapmaker Orca" then return "/Applications/Snapmaker Orca.app"
-    
-    -- Default: standard naming in /Applications/
-    return "/Applications/" & slicerName & ".app"
-end getAppPath
+    var userChoice = app.chooseFromList(choiceList, {
+        withPrompt: "Select a process or start a new one:",
+        defaultItems: [choiceList[0]]
+    });
+    if (!userChoice) return;
+
+    var chosenProcess = userChoice[0];
+    if (chosenProcess.endsWith(" - (New)")) {
+        startNewSlicerInstance(chosenSlicer, theFilePath);
+        return;
+    }
+
+    var chosenPID = parseInt(chosenProcess.split(" ")[0], 10);
+    try {
+        var sysEvents = Application("System Events");
+        var procs = sysEvents.processes();
+        for (var p = 0; p < procs.length; p++) {
+            if (procs[p].unixId() === chosenPID) {
+                procs[p].frontmost = true;
+                break;
+            }
+        }
+        if (theFilePath) {
+            app.doShellScript("open -a " + quotedForm(chosenSlicer) + " --args " + quotedForm(theFilePath));
+        }
+    } catch(e) {
+        app.displayDialog("Error: " + e.message, { buttons: ["OK"], defaultButton: "OK" });
+    }
+}
+
+function startNewSlicerInstance(chosenSlicer, theFilePath) {
+    var slicerPath = getAppPath(chosenSlicer);
+    try {
+        if (theFilePath) {
+            app.doShellScript("open -n -a " + quotedForm(slicerPath) + " " + quotedForm(theFilePath));
+        } else {
+            app.doShellScript("open -n -a " + quotedForm(slicerPath));
+        }
+    } catch(e) {
+        app.displayDialog("Error: " + e.message, { buttons: ["OK"], defaultButton: "OK" });
+    }
+}
+
+function getAppPath(slicerName) {
+    if (slicerName === "AnyCubic Slicer")      return "/Applications/AnycubicSlicer.app";
+    if (slicerName === "AnyCubic Slicer Next") return "/Applications/AnycubicSlicerNext.app";
+    if (slicerName === "Creality Print")       return "/Applications/Creality Print.app";
+    if (slicerName === "Snapmaker Luban")      return "/Applications/Snapmaker Luban.app";
+    if (slicerName === "Snapmaker Orca")       return "/Applications/Snapmaker Orca.app";
+    return "/Applications/" + slicerName + ".app";
+}
+
+function quotedForm(str) {
+    return "'" + str.replace(/'/g, "'\\''") + "'";
+}
