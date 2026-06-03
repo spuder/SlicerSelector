@@ -2,14 +2,13 @@ name: Build and Release
 
 on:
   workflow_dispatch: # Trigger manually from GitHub Actions UI
-  # Uncomment to re-enable automatic builds when Tahoe GitHub runners are available:
-  # push:
-  #   tags:
-  #     - "v*"
+  push:
+    tags:
+      - "v*"
 
 jobs:
   build-and-release:
-    runs-on: macos-latest
+    runs-on: macos-26
     permissions:
       contents: write
     steps:
