@@ -94,10 +94,6 @@ jobs:
           sed -i '' "s|version \".*\"|version \"$version\"|" Casks/slicer-selector.rb
           sed -i '' "s|sha256 \".*\"|sha256 \"${{ steps.shasum.outputs.sha }}\"|" Casks/slicer-selector.rb
 
-          # Ensure no_quarantine is present (required since app is not notarized)
-          grep -q "no_quarantine" Casks/slicer-selector.rb || \
-            sed -i '' 's|app "SlicerSelector.app"|app "SlicerSelector.app"\n\n  no_quarantine|' Casks/slicer-selector.rb
-
           # Commit and push changes
           git config user.name github-actions
           git config user.email github-actions@github.com
