@@ -1,5 +1,5 @@
-var app = Application.currentApplication();
-app.includeStandardAdditions = true;
+ObjC.import('AppKit');
+ObjC.import('Foundation');
 
 function run() {
     handleSlicerSelection(null);
@@ -8,6 +8,37 @@ function run() {
 function open(files) {
     var f = files[0];
     handleSlicerSelection(typeof f === "string" ? f : f.toString());
+}
+
+function showPicker(items, prompt, defaultItem) {
+    $.NSApplication.sharedApplication.activateIgnoringOtherApps(true);
+
+    var alert = $.NSAlert.alloc.init;
+    alert.messageText = $(prompt);
+    alert.addButtonWithTitle($('OK'));
+    alert.addButtonWithTitle($('Cancel'));
+
+    var popup = $.NSPopUpButton.alloc.initWithFramePullsDown($.NSMakeRect(0, 0, 300, 26), false);
+    items.forEach(function(item) { popup.addItemWithTitle($(item)); });
+    if (defaultItem) popup.selectItemWithTitle($(defaultItem));
+    alert.accessoryView = popup;
+
+    if (alert.runModal === $.NSAlertFirstButtonReturn) {
+        return ObjC.unwrap(popup.titleOfSelectedItem);
+    }
+    return null;
+}
+
+function showAlert(message) {
+    $.NSApplication.sharedApplication.activateIgnoringOtherApps(true);
+    var alert = $.NSAlert.alloc.init;
+    alert.messageText = $(message);
+    alert.addButtonWithTitle($('OK'));
+    alert.runModal;
+}
+
+function fileExists(path) {
+    return $.NSFileManager.defaultManager.fileExistsAtPath($(path));
 }
 
 function handleSlicerSelection(theFilePath) {
@@ -21,37 +52,25 @@ function handleSlicerSelection(theFilePath) {
         "UltiMaker Cura", "JusPrin"
     ];
 
-    var installedSlicers = [];
-    for (var i = 0; i < slicerList.length; i++) {
-        try {
-            app.doShellScript("ls " + quotedForm(getAppPath(slicerList[i])));
-            installedSlicers.push(slicerList[i]);
-        } catch(e) {}
-    }
+    var installedSlicers = slicerList.filter(function(s) {
+        return fileExists(getAppPath(s));
+    });
 
     if (installedSlicers.length === 0) {
-        app.displayDialog("No supported slicers found in the Applications folder.", {
-            buttons: ["OK"], defaultButton: "OK"
-        });
+        showAlert("No supported slicers found in the Applications folder.");
         return;
     }
 
-    var defaultSlicer = "BambuStudio";
-    var defaultItems = installedSlicers.indexOf(defaultSlicer) !== -1
-        ? [defaultSlicer]
-        : [installedSlicers[0]];
+    var defaultSlicer = installedSlicers.indexOf("BambuStudio") !== -1 ? "BambuStudio" : installedSlicers[0];
+    var chosenSlicer = showPicker(installedSlicers, "Select a slicer to open:", defaultSlicer);
+    if (!chosenSlicer) return;
 
-    var selectedSlicer = app.chooseFromList(installedSlicers, {
-        withPrompt: "Select a slicer to open:",
-        defaultItems: defaultItems
-    });
-    if (!selectedSlicer) return;
-
-    var chosenSlicer = selectedSlicer[0];
+    var shell = Application.currentApplication();
+    shell.includeStandardAdditions = true;
 
     var slicerProcesses;
     try {
-        slicerProcesses = app.doShellScript(
+        slicerProcesses = shell.doShellScript(
             "ps -ax -o pid,command | grep -i " + quotedForm(chosenSlicer) + " | grep -v grep"
         );
     } catch(e) {
@@ -60,11 +79,10 @@ function handleSlicerSelection(theFilePath) {
     }
 
     var processMapping = [];
-    var lines = slicerProcesses.split("\n");
-    for (var j = 0; j < lines.length; j++) {
-        var m = lines[j].trim().match(/^(\d+)\s+(.+)$/);
+    slicerProcesses.split("\n").forEach(function(line) {
+        var m = line.trim().match(/^(\d+)\s+(.+)$/);
         if (m) processMapping.push([m[1], m[2]]);
-    }
+    });
 
     if (processMapping.length === 0) {
         startNewSlicerInstance(chosenSlicer, theFilePath);
@@ -72,17 +90,11 @@ function handleSlicerSelection(theFilePath) {
     }
 
     var choiceList = [chosenSlicer + " - (New)"];
-    for (var k = 0; k < processMapping.length; k++) {
-        choiceList.push(processMapping[k][0] + " - " + processMapping[k][1]);
-    }
+    processMapping.forEach(function(p) { choiceList.push(p[0] + " - " + p[1]); });
 
-    var userChoice = app.chooseFromList(choiceList, {
-        withPrompt: "Select a process or start a new one:",
-        defaultItems: [choiceList[0]]
-    });
-    if (!userChoice) return;
+    var chosenProcess = showPicker(choiceList, "Select a process or start a new one:", choiceList[0]);
+    if (!chosenProcess) return;
 
-    var chosenProcess = userChoice[0];
     if (chosenProcess.endsWith(" - (New)")) {
         startNewSlicerInstance(chosenSlicer, theFilePath);
         return;
@@ -92,30 +104,32 @@ function handleSlicerSelection(theFilePath) {
     try {
         var sysEvents = Application("System Events");
         var procs = sysEvents.processes();
-        for (var p = 0; p < procs.length; p++) {
-            if (procs[p].unixId() === chosenPID) {
-                procs[p].frontmost = true;
+        for (var i = 0; i < procs.length; i++) {
+            if (procs[i].unixId() === chosenPID) {
+                procs[i].frontmost = true;
                 break;
             }
         }
         if (theFilePath) {
-            app.doShellScript("open -a " + quotedForm(chosenSlicer) + " --args " + quotedForm(theFilePath));
+            shell.doShellScript("open -a " + quotedForm(chosenSlicer) + " --args " + quotedForm(theFilePath));
         }
     } catch(e) {
-        app.displayDialog("Error: " + e.message, { buttons: ["OK"], defaultButton: "OK" });
+        showAlert("Error: " + e.message);
     }
 }
 
 function startNewSlicerInstance(chosenSlicer, theFilePath) {
+    var shell = Application.currentApplication();
+    shell.includeStandardAdditions = true;
     var slicerPath = getAppPath(chosenSlicer);
     try {
         if (theFilePath) {
-            app.doShellScript("open -n -a " + quotedForm(slicerPath) + " " + quotedForm(theFilePath));
+            shell.doShellScript("open -n -a " + quotedForm(slicerPath) + " " + quotedForm(theFilePath));
         } else {
-            app.doShellScript("open -n -a " + quotedForm(slicerPath));
+            shell.doShellScript("open -n -a " + quotedForm(slicerPath));
         }
     } catch(e) {
-        app.displayDialog("Error: " + e.message, { buttons: ["OK"], defaultButton: "OK" });
+        showAlert("Error: " + e.message);
     }
 }
 
